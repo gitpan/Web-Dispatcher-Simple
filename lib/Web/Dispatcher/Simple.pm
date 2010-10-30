@@ -1,7 +1,7 @@
 package Web::Dispatcher::Simple;
 use strict;
 use warnings;
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use Carp ();
 use Router::Simple;
@@ -125,27 +125,23 @@ sub handle_request {
         $code->( $req, $match );
     }
     catch {
-        my $e = shift;
-        return handle_exception($e);
+        handle_exception($_);
     };
     return psgify_response($res);
 }
 
 sub psgify_response {
     my $res = shift;
-
     my $psgi_res;
     my $res_type = ref($res) || '';
     if ( blessed $res && $res->isa('Plack::Response') ) {
-
-        #TODO enable configuring
         $res->encode_body;
         $psgi_res = $res->finalize;
     }
     elsif ( $res_type eq 'ARRAY' ) {
-        my $res = Web::Dispatcher::Simple::Response->new(@$res);
-        $res->encode_body;
-        $psgi_res = $res->finalize;
+        my $response = Web::Dispatcher::Simple::Response->new(@$res);
+        $response->encode_body;
+        $psgi_res = $response->finalize;
     }
     else {
         Carp::croak("unknown response type: $res_type. The response is $res");
@@ -164,12 +160,12 @@ sub handle_not_found {
 }
 
 sub not_found {
-    [ 404, [], ['Not Found'] ];
+    [ 404, [], [ 'Not Found' ] ];
 }
 
 sub internal_server_error {
     my $e = shift;
-    [ 500, [], [ 'Internal server error: ' . $e ] ];
+    [ 500, [], [ 'Internal Server Error'] ];
 }
 
 1;
