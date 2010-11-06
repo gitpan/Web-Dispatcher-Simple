@@ -31,4 +31,4 @@ requires:
   Try::Tiny: 0.06
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.091
+version: 0.092
